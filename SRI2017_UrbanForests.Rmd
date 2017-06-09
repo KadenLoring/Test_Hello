@@ -1,0 +1,581 @@
+---
+title: "SRI 2017- Urban Forests"
+author: "Kaden Loring"
+date: "6/7/2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+####Forest Observations
+
+Measurements of several variables were taken in and around the urban forest on Saint Thomas University campus over multiple days and weather conditions. The Forest was divided into a 4 x 7 grid of 28 regions. During every measurement, three measurements were taken at random positions within each region. All measurements taken for each region were then averaged and plotted as thematic choropleth maps to compare microclimate variances throughout the defined area of the forest and its adjacent area. 
+
+####Required Packages
+
+```{r}
+suppressMessages(library(tidyverse))
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
+suppressMessages(library(ggmap))
+suppressMessages(library(EBImage))
+suppressMessages(library(knitr))
+```
+
+####Define Plot Functions
+```{r}
+#define common plot background aesthetic
+commonplot <- theme(plot.background = element_rect(fill="snow"),
+        panel.background = element_rect(fill="white"))
+```
+
+#####Saint Thomas University Urban Forest
+
+```{r message= FALSE}
+#map of forest and surrounding area
+Forest2 <- get_map(location= c(Lon= -80.257248, Lat= 25.924042), zoom = 17, maptype = "satellite")
+
+Forestmap2 <- ggmap(Forest2, extent= "device")
+
+Forestmap2
+```
+
+###Setup
+
+Required Setup
+
+```{r message= FALSE}
+#read csv with Forest measurements Data
+SM <- read.csv("~/Documents/SRI_17/SoilMoisture/Spreadsheets/SM_Official_Spreadsheet.csv")
+
+#Set Region numbers as factors for grouping
+SM$Region <- as.factor(SM$Region)
+
+  #SM$Region (run for reference)
+
+#remove rows with NA or blank measurements by Lat variable
+SM <- SM[!(is.na(SM$Lat) | SM$Lat==""), ]
+
+#Data Frame containing average VWC per Region ID
+#group by region and compute average VWC
+VWCRegionAv <- aggregate(SM$VWC,by=list(SM$Region),FUN=mean)
+
+  #VWCRegionAv (Run for Reference)
+
+#Spatial Polygon Data Frame- Creation
+suppressMessages(library(sp))
+suppressMessages(library(plyr))
+
+
+#Define single "polygon"s
+Region1 <- Polygon(rbind(c(-80.259960, 25.925354), c( -80.259209, 25.925354), c(-80.259209, 25.924808), c(-80.259960, 25.924808)))
+
+Region2 <- Polygon(rbind(c(-80.259960, 25.924808), c(-80.259209, 25.924808), c(-80.259209, 25.924262), c( -80.259960, 25.924262)))     
+
+Region3 <- Polygon(rbind(c(-80.259960, 25.924262), c(-80.259209, 25.924262), c(-80.259209, 25.923716), c(-80.259960, 25.923716)))
+
+Region4 <- Polygon(rbind(c(-80.259960, 25.923716), c(-80.259209, 25.923716), c(-80.259209, 25.923170), c(-80.259960, 25.923170)))
+
+Region5 <- Polygon(rbind(c(-80.259209, 25.925354), c(-80.258458, 25.925354), c( -80.258458, 25.924808), c( -80.259209, 25.924808)))
+
+Region6 <- Polygon(rbind(c(-80.259209, 25.924808), c(-80.258458, 25.924808), c(-80.258458, 25.924262), c(-80.259209, 25.924262)))
+
+Region7 <- Polygon(rbind(c(-80.259209, 25.924262), c(-80.258458, 25.924262), c(-80.258458, 25.923716), c(-80.259209, 25.923716)))
+
+Region8 <- Polygon(rbind(c(-80.259209, 25.923716), c(-80.258458, 25.923716), c(-80.258458, 25.923170), c(-80.259209, 25.923170)))
+
+Region9 <- Polygon(rbind(c(-80.258458, 25.925354), c(-80.257707, 25.925354), c(-80.257707, 25.924808), c(-80.258458, 25.924808)))  
+
+Region10 <- Polygon(rbind(c(-80.258458, 25.924808), c(-80.257707, 25.924808), c(-80.257707, 25.924262), c(-80.258458, 25.924262)))  
+
+Region11 <- Polygon(rbind(c(-80.258458, 25.924262), c(-80.257707, 25.924262), c(-80.257707, 25.923716), c(-80.258458, 25.923716)))  
+
+Region12 <- Polygon(rbind(c(-80.258458, 25.923716), c(-80.257707, 25.923716), c(-80.257707, 25.923170), c(-80.258458, 25.923170)))
+
+Region13 <- Polygon(rbind(c(-80.257707, 25.925354), c(-80.256956, 25.925354), c(-80.256956, 25.924808), c(-80.257707, 25.924808)))
+
+Region14 <- Polygon(rbind(c(-80.257707, 25.924808), c(-80.256956, 25.924808), c(-80.256956, 25.924262), c(-80.257707, 25.924262)))
+
+Region15 <- Polygon(rbind(c(-80.257707, 25.924262), c(-80.256956, 25.924262), c(-80.256956, 25.923716), c(-80.257707, 25.923716)))
+
+Region16 <- Polygon(rbind(c(-80.257707, 25.923716), c(-80.256956, 25.923716), c(-80.256956, 25.923170), c(-80.257707, 25.923170)))
+
+Region17 <- Polygon(rbind(c(-80.256956, 25.925354), c(-80.256205, 25.925354), c(-80.256205, 25.924808), c(-80.256956, 25.924808)))
+
+Region18 <- Polygon(rbind(c(-80.256956, 25.924808), c(-80.256205, 25.924808), c(-80.256205, 25.924262), c(-80.256956, 25.924262)))
+
+Region19 <- Polygon(rbind(c(-80.256956, 25.924262), c(-80.256205, 25.924262), c(-80.256205, 25.923716), c(-80.256956, 25.923716)))
+
+Region20 <- Polygon(rbind(c(-80.256956, 25.923716), c(-80.256205, 25.923716), c(-80.256205, 25.923170), c(-80.256956, 25.923170)))
+
+Region21 <- Polygon(rbind(c(-80.256205, 25.925354), c(-80.255454, 25.925354), c(-80.255454, 25.924808), c(-80.256205, 25.924808)))
+
+Region22 <- Polygon(rbind(c(-80.256205, 25.924808), c(-80.255454, 25.924808), c(-80.255454, 25.924262), c(-80.256205, 25.924262)))
+
+Region23 <- Polygon(rbind(c(-80.256205, 25.924262), c(-80.255454, 25.924262), c(-80.255454, 25.923716), c(-80.256205, 25.923716)))
+
+Region24 <- Polygon(rbind(c(-80.256205, 25.923716), c(-80.255454, 25.923716), c(-80.255454, 25.923170), c(-80.256205, 25.923170)))
+
+Region25 <- Polygon(rbind(c(-80.255454, 25.925354), c(-80.254703, 25.925354), c(-80.254703, 25.924808), c(-80.255454, 25.924808)))
+
+Region26 <- Polygon(rbind(c(-80.255454, 25.924808), c(-80.254703, 25.924808), c(-80.254703, 25.924262), c(-80.255454, 25.924262)))
+
+Region27 <- Polygon(rbind(c(-80.255454, 25.924262), c(-80.254703, 25.924262), c(-80.254703, 25.923716), c(-80.255454, 25.923716)))
+
+Region28 <- Polygon(rbind(c(-80.255454, 25.923716), c(-80.254703, 25.923716), c(-80.254703, 25.923170), c(-80.255454, 25.923170)))
+
+#Turn into polygons (plural) region (combines them)
+#[Ex. (Regionwhole <- Polygons(list(Region1, Region2, Region3, Region4, Region5, Region6, Region7, Region8, Region9)))]
+Region1 <- Polygons(list(Region1), "1")
+
+Region2 <- Polygons(list(Region2), "2")
+
+Region3 <- Polygons(list(Region3), "3")
+
+Region4 <- Polygons(list(Region4), "4")
+
+Region5 <- Polygons(list(Region5), "5")
+
+Region6 <- Polygons(list(Region6), "6")
+
+Region7 <- Polygons(list(Region7), "7")
+
+Region8 <- Polygons(list(Region8), "8")
+
+Region9 <- Polygons(list(Region9), "9")
+
+Region10 <- Polygons(list(Region10), "10")
+
+Region11 <- Polygons(list(Region11), "11")
+
+Region12 <- Polygons(list(Region12), "12")
+
+Region13 <- Polygons(list(Region13), "13")
+
+Region14 <- Polygons(list(Region14), "14")
+
+Region15 <- Polygons(list(Region15), "15")
+
+Region16 <- Polygons(list(Region16), "16")
+
+Region17 <- Polygons(list(Region17), "17")
+
+Region18 <- Polygons(list(Region18), "18")
+
+Region19 <- Polygons(list(Region19), "19")
+
+Region20 <- Polygons(list(Region20), "20")
+
+Region21 <- Polygons(list(Region21), "21")
+
+Region22 <- Polygons(list(Region22), "22")
+
+Region23 <- Polygons(list(Region23), "23")
+
+Region24 <- Polygons(list(Region24), "24")
+
+Region25 <- Polygons(list(Region25), "25")
+
+Region26 <- Polygons(list(Region26), "26")
+
+Region27 <- Polygons(list(Region27), "27")
+
+Region28 <- Polygons(list(Region28), "28")
+
+#make into a SpatialPolygons object 
+#(requires 'Polygons' type arguments (*notice plurality of Polygons))
+map <- SpatialPolygons(list(Region1, Region2, Region3, Region4, Region5, Region6, Region7, Region8, Region9, Region10, Region11, Region12, Region13, Region14, Region15, Region16, Region17, Region18, Region19, Region20, Region21, Region22, Region23, Region24, Region25, Region26, Region27, Region28), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"))
+
+#makes Spatial Polygons Data Frame with VWCRegionAv as Data
+map <- SpatialPolygonsDataFrame(map, VWCRegionAv)
+
+#ensure class is Spatial Polygons Data Frame
+  #class(map) (Run for Reference)
+
+#ensure correct averages are associated with correct Region ID
+  #map@data (Run for Reference)
+
+#Conversion from SpatialPolygonsDataFrame to DataFrame for manipulation 
+#(retaining Data from VWCRegionAv)
+map@data$id <- rownames(map@data) #same row names
+
+map@data <- join(map@data, VWCRegionAv, by="Group.1") #associate values by Group.1 (region id)
+
+map.df     <- fortify(map) #conversion to data.frame
+
+map.df     <- join(map.df,map@data) #joins the otherwise lost map@data values to the map.df data frame
+
+ #map.df (Run for Reference) #display data frame
+
+#bounding box method of transpostion 
+
+#define matrix with boundaries of map to box
+coordsbox <-  matrix(c(-80.260396, 25.922774,
+                  -80.260396, 25.925600,
+                 -80.253713, 25.925600,
+                  -80.253713, 25.922774,
+                  -80.260396, 25.922774), 
+                ncol = 2, byrow = TRUE)
+
+#coerce matrix to Polygon object
+Polybox <- Polygon(coordsbox)
+
+#coerce Polygon to SpatialPolygons object
+SpPolybox <-  SpatialPolygons(list(Polygons(list(Polybox), ID = "1")), proj4string=CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"))
+
+#basic plot of SpatialPolygons object
+ #suppressWarnings(plot(SpPolybox, axes = TRUE)) (Run for Reference)
+
+#create utility data.frame in order to create SpatialPolygonsDataFrame
+SP.df <- data.frame(ID= 1: length(SpPolybox))
+
+#coerce SpatialPolygons object to SpatialPolygonsDataFrame
+SpPolybox.df <- SpatialPolygonsDataFrame(SpPolybox, SP.df)
+
+#create box using border point defined in coordsbox
+box <- bbox(SpPolybox.df)
+
+#shows box mins and maxs
+box
+
+#creates ggmap of coordsbox boundaries
+mapbox <- ggmap(get_map(location = box, maptype = "satellite"))
+
+
+```
+
+###Forest Measurements Visualization
+
+Below is a map of the forest with red points indicating the position of each measurement recorded during the observation period.
+
+```{r message= FALSE}
+
+#Location of Measurements
+
+Forest_locations <- ggmap(Forest2, extent = "panel") + geom_point(data = SM, aes(x= SM$Lon, y= SM$Lat), lwd= 0.5, color= "red") + 
+  ggtitle(" Measurement Locations") + 
+  labs(x="Latitude", y="Longitude", caption= "Saint Thomas University, Miami Gardens, FL" )+
+  theme(plot.title = element_text(color= "dodgerblue", size = 15, face = "bold", hjust= 0.5), plot.caption = element_text(hjust= 0.5) ,axis.title.x = element_text(color= "sienna1"), axis.title.y = element_text(color= "sienna1")) + commonplot
+
+Forest_locations
+
+#Location of Measurements with grid reference
+
+Grid_Locations <- mapbox +  geom_polygon(data = map.df, aes(x = long, y = lat, group = group), fill= "blue", 
+    alpha = 0.04) + coord_map() + geom_point(data = SM, aes(x= SM$Lon, y= SM$Lat), lwd= 0.5, color= "red")+
+  xlab("Longitude")+ ylab("Latitude")+theme(
+    axis.title.x = element_text(size= 9, color = "orangered"), 
+    axis.title.y = element_text(size= 9, color = "orangered"),
+    axis.ticks.y = element_blank(), axis.ticks.x = element_blank(), plot.background = element_rect(fill="snow"),
+        panel.background = element_rect(fill="white"))+
+  geom_path(data = map.df, aes(x = long, y = lat, group = group), color = "white", lwd= 0.07) 
+
+#adds title and subtitle via annotation    
+Grid_Locations <- Grid_Locations + annotate("text", x = -80.257, y = 25.9267, label = "Measurement Locations\nOn Region Grid", color= "lightgoldenrod1", size= 5, fontface= "bold")+
+  annotate("text", x= -80.25458, y= 25.9215, label= "Saint Thomas University\nMiami Gardens, FL", color= "cornsilk1", size= 2.5)
+
+#plots Grid reference map
+Grid_Locations
+
+```
+
+####Soil Moisture Measurement
+
+Volumetric water content percentage (VWC %) was measured over several days in the Saint Thomas University urban forest. The average VWC % value of each determined geographic region was graphed using a choropleth map.
+
+The regions most orange represent grid regions with significant soil aridity. Soil in these regions is mostly fine, white, shallow sand with a great deal of loose limestone rock as well. Little if any vegetation grows in these areas. 
+
+Dark blue grid regions represent areas with more saturated soil. The soil in these regions is brownish sand with a large amount of decomposing organic matter. The soil is also covered with pine needles, leaves, and vines. Most of the surface area in these saturated regions are constantly shielded from the sun by a thick subtropical canopy.
+
+```{r message=FALSE}
+#Choropleth grid for example 
+Choroplethbase1 <- ggplot(map.df, aes(x=long, y=lat, group=group))+
+  geom_polygon(aes(fill=x, alpha= 0.4)) + 
+  scale_fill_gradient2(low = "orange", mid = "skyblue",
+      high = "blue", midpoint = 3.419, space = "Lab",
+      na.value = "grey50", guide = "colourbar")+
+  coord_fixed() + guides(alpha= "none")+
+  guides(fill=guide_colorbar(title="VWC %\n", order = -1), alpha= "none") + commonplot + ggtitle("Average Soil Volumetric Water\nContent Percentage")+ theme(plot.title = element_text(color="red", face = "bold", hjust=0.5)) + labs(x= "Longitude", y= "Latitude")
+
+Choroplethbase1
+
+#Choropleth map with divergent color scale
+Choromap_VWC1 <- mapbox +  geom_polygon(data = map.df, aes(x = long, y = lat, group = group, fill = x), 
+    alpha = 0.4) + coord_map() +
+  scale_fill_gradient2(low = "orange", mid = "skyblue",
+    high = "blue", midpoint = 3.419, space = "Lab",
+    na.value = "grey50", guide = "colourbar")+
+  guides(fill=guide_colorbar(title="VWC %\n", order = -1), alpha= "none") +
+  xlab("Longitude")+ ylab("Latitude")+theme(
+    plot.subtitle = element_text(color= "black", hjust = 0.5), 
+    legend.title = element_text(color= "orangered", size = 12),
+    axis.title.x = element_text(size= 9, color = "orangered"), 
+    axis.title.y = element_text(size= 9, color = "orangered"),
+    axis.ticks.y = element_blank(), axis.ticks.x = element_blank()) + geom_path(data = map.df, aes(x = long, y = lat, group = group), color = "white", lwd= 0.05) + commonplot
+
+#adds title and subtitle via annotation    
+Choromap_VWC1 <- Choromap_VWC1 + annotate("text", x = -80.257, y = 25.9267, label = "Average Soil Volumetric Water\nContent Percentage", color= "lightgoldenrod1", size= 5, fontface= "bold")+
+  annotate("text", x= -80.25458, y= 25.9215, label= "Saint Thomas University\nMiami Gardens, FL", color= "cornsilk1", size= 2.5)
+
+#plots Choropleth map with divergent color scale
+Choromap_VWC1
+
+
+#Alternate Choropleth map with continous color scale of blues
+Choromap_VWC2 <- mapbox +  geom_polygon(data = map.df, aes(x = long, y = lat, group = group, fill = x), 
+      alpha = 0.6) + coord_map() + 
+  scale_fill_gradient2(low = "powderblue", mid = "skyblue2",
+      high = "slateblue4", midpoint = 3.419, space = "Lab",
+      na.value = "grey50", guide = "colourbar")+
+  guides(fill=guide_colorbar(title="VWC %\n", order = -1), alpha= "none") +
+  xlab("Longitude")+ ylab("Latitude")+theme(
+      plot.subtitle = element_text(color= "black", hjust = 0.5), 
+      legend.title = element_text(color= "orangered", size = 12),
+      axis.title.x = element_text(size= 9, color = "orangered"), 
+      axis.title.y = element_text(size= 9, color = "orangered"),
+      axis.ticks.y = element_blank(), axis.ticks.x = element_blank())+
+  geom_path(data = map.df, aes(x = long, y = lat, group = group), color = "white", lwd= 0.05) + commonplot
+
+#adds title and subtitle via annotation    
+Choromap_VWC2 <- Choromap_VWC2 + annotate("text", x = -80.257, y = 25.9267, label = "Average Soil Volumetric Water\nContent Percentage", color= "lightgoldenrod1", size= 5, fontface= "bold")+
+  annotate("text", x= -80.25458, y= 25.9215, label= "Saint Thomas University\nMiami Gardens, FL", color= "cornsilk1", size= 2.5)
+
+#plots Alternate Choropleth map
+Choromap_VWC2
+```
+
+
+####Choropleth Maps for Other Variables
+
+First, create a new data frame which excludes NA and empty observations for measurements other than VWC. The column SM$UVAIntensity is used because it is the column with the least measurements; ensuring that all empty and NA rows will be removed.
+
+```{r messages= FALSE}
+#remove rows with NA or blank measurements by UVAIntensity variable 
+#SMO: O stands for measurements other than VWC
+SMO <- SM[!(is.na(SM$UVAIntensity) | SM$UVAIntensity==""), ]
+```
+
+###Air Temperature in Degrees Fahrenheit Choropleth Map
+
+```{r messages=FALSE}
+#Air Temperature Choropleth Map
+
+#group AirTemp measurements by Region "number" identifier 
+AirTempRegionAv <- aggregate(SMO$AirTemp, by= list(SMO$Region), FUN=mean)
+
+  #AirTempRegionAv (Run for Reference)
+
+#Creating Data.Frame with AirTemp and geographic polygon values
+
+mapAT <- SpatialPolygonsDataFrame(map, AirTempRegionAv) #makes Spatial Polygons Data Frame with AirTempRegionAv as Data
+
+#ensure class is Spatial Polygons Data Frame
+  #class(mapAT) (Run for Reference)
+
+#ensure correct averages are associated with correct Region ID
+  #mapAT@data (Run for Reference)
+
+#Conversion from SpatialPolygonsDataFrame to DataFrame for manipulation 
+#(retaining Data from VWCRegionAv)
+mapAT@data$id <- rownames(mapAT@data) #same row names
+
+mapAT@data <- join(mapAT@data, AirTempRegionAv, by="Group.1") #associate values by Group.1 (region id)
+
+mapAT.df     <- fortify(mapAT) #conversion to data.frame
+
+mapAT.df     <- join(mapAT.df,mapAT@data)
+
+  #mapAT.df (Run for Reference)
+
+
+#AirTemp Choropleth map with reddish color scale
+Choromap_AT <- mapbox +  geom_polygon(data = mapAT.df, aes(x = long, y = lat, group = group, fill = x), 
+      alpha = 0.6) + coord_map() +
+  scale_fill_gradient(low = "purple",
+      high = "orange",
+      na.value = "grey50", guide = "colourbar")+
+  guides(fill=guide_colorbar(title="°F\n", order = -1), alpha= "none") +
+  xlab("Longitude")+ ylab("Latitude")+theme(
+    plot.subtitle = element_text(color= "black", hjust = 0.5), 
+    legend.title = element_text(color= "orangered", size = 12),
+    axis.title.x = element_text(size= 9, color = "orangered"), 
+    axis.title.y = element_text(size= 9, color = "orangered"),
+    axis.ticks.y = element_blank(), axis.ticks.x = element_blank()) + geom_path(data = map.df, aes(x = long, y = lat, group = group), color = "white", lwd= 0.05) + commonplot
+
+#adds title and subtitle via annotation    
+Choromap_AT <- Choromap_AT + annotate("text", x = -80.257, y = 25.9267, label = "Average Air Temperature Fahrenheit", color= "lightgoldenrod1", size= 5, fontface= "bold")+
+  annotate("text", x= -80.25458, y= 25.9215, label= "Saint Thomas University\nMiami Gardens, FL", color= "cornsilk1", size= 2.5)
+
+#plots AirTemp Choropleth map
+Choromap_AT
+```
+
+###Relative Humidity Percentage Choropleth Map
+
+```{r messages= FALSE}
+#Relative Humidity Choropleth map
+
+#group RelHumid measurements by Region "number" identifier
+RelHumidRegionAv <- aggregate(SMO$RelHumid, by= list(SMO$Region), FUN= mean)
+
+  #RelHumidRegionAv (Run for Reference)
+
+#Creating Data.Frame with RelHumid and geographic polygon values
+
+mapRH <- SpatialPolygonsDataFrame(map, RelHumidRegionAv) #makes Spatial Polygons Data Frame with AirTempRegionAv as Data
+
+#ensure class is Spatial Polygons Data Frame
+  #class(mapRH) (Run for Reference)
+
+#ensure correct averages are associated with correct Region ID
+  #mapRH@data (Run for Reference)
+
+#Conversion from SpatialPolygonsDataFrame to DataFrame for manipulation 
+#(retaining Data from RelHumidRegionAv)
+mapRH@data$id <- rownames(mapRH@data) #same row names
+
+mapRH@data <- join(mapRH@data, RelHumidRegionAv, by="Group.1") #associate values by Group.1 (region id)
+
+mapRH.df     <- fortify(mapRH) #conversion to data.frame
+
+mapRH.df     <- join(mapRH.df, mapRH@data)
+
+  #mapRH.df (Run for Reference)
+
+
+#RelHumid Choropleth map with blues color scale
+Choromap_RH <- mapbox +  geom_polygon(data = mapRH.df, aes(x = long, y = lat, group = group, fill = x), 
+    alpha = 0.6) + coord_map() +
+  scale_fill_gradient(low = "powderblue",
+    high = "royalblue4",
+    na.value = "grey50", guide = "colourbar")+
+  guides(fill=guide_colorbar(title="Relative\nHumidity %\n", order = -1), alpha= "none") +
+  xlab("Longitude")+ ylab("Latitude")+theme(
+    plot.subtitle = element_text(color= "black", hjust = 0.5), 
+    legend.title = element_text(color= "orangered", size = 12),
+    axis.title.x = element_text(size= 9, color = "orangered"), 
+    axis.title.y = element_text(size= 9, color = "orangered"),
+    axis.ticks.y = element_blank(), axis.ticks.x = element_blank()) + geom_path(data = map.df, aes(x = long, y = lat, group = group), color = "white", lwd= 0.05) + commonplot
+
+#adds title and subtitle via annotation    
+Choromap_RH <- Choromap_RH + annotate("text", x = -80.257, y = 25.9267, label = "Average Relative\nHumidity Percentage", color= "lightgoldenrod1", size= 5, fontface= "bold")+
+  annotate("text", x= -80.25458, y= 25.9215, label= "Saint Thomas University\nMiami Gardens, FL", color= "cornsilk1", size= 2.5)
+
+#plots RelHumid Choropleth map
+Choromap_RH
+```
+
+###Infrared Intensity Choropleth Map
+
+```{r messages= FALSE}
+#IRIntensity Choropleth map
+
+#group IRIntensity measurements by Region "number identifier
+IRIntensityRegionAv <- aggregate(SMO$IRIntensity, by= list(SMO$Region), FUN= mean)
+
+  #IRIntensityRegionAv (Run for Reference)
+
+#Creating Data.Frame with AirTemp and geographic polygon values
+
+mapIR <- SpatialPolygonsDataFrame(map, IRIntensityRegionAv) #makes Spatial Polygons Data Frame with AirTempRegionAv as Data
+
+#ensure class is Spatial Polygons Data Frame
+  #class(mapIR) (Run for Reference)
+
+#ensure correct averages are associated with correct Region ID
+  #mapIR@data (Run for Reference)
+
+#Conversion from SpatialPolygonsDataFrame to DataFrame for manipulation 
+#(retaining Data from VWCRegionAv)
+mapIR@data$id <- rownames(mapIR@data) #same row names
+
+mapIR@data <- join(mapIR@data, IRIntensityRegionAv, by="Group.1") #associate values by Group.1 (region id)
+
+mapIR.df <- fortify(mapIR) #conversion to data.frame
+
+mapIR.df <- join(mapIR.df, mapIR@data)
+
+  #mapIR.df (Run for Reference)
+
+
+#IRIntensity Choropleth map with violet to yellow color scale
+Choromap_IR <- mapbox +  geom_polygon(data = mapIR.df, aes(x = long, y = lat, group = group, fill = x), 
+    alpha = 0.6) + coord_map() +
+  scale_fill_gradient(low = "violetred",
+    high = "yellow",
+    na.value = "grey50", guide = "colourbar")+
+  guides(fill=guide_colorbar(title= expression(W/m^{2}) , order = -1), alpha= "none") +
+  xlab("Longitude")+ ylab("Latitude")+theme(
+    plot.subtitle = element_text(color= "black", hjust = 0.5), 
+    legend.title = element_text(color= "orangered", size = 12),
+    axis.title.x = element_text(size= 9, color = "orangered"), 
+    axis.title.y = element_text(size= 9, color = "orangered"),
+    axis.ticks.y = element_blank(), axis.ticks.x = element_blank()) +
+  geom_path(data = map.df, aes(x = long, y = lat, group = group), color = "white", lwd= 0.05) + commonplot
+
+#adds title and subtitle via annotation    
+Choromap_IR <- Choromap_IR + annotate("text", x = -80.257, y = 25.9267, label = "Solar Infrared Intensity", color= "lightgoldenrod1", size= 5, fontface= "bold")+
+  annotate("text", x = -80.257, y = 25.9264, label = "Watts per Square Meter", color= "lightgoldenrod1", fontface = "bold", size = 3.5) +
+  annotate("text", x= -80.25458, y= 25.9215, label= "Saint Thomas University\nMiami Gardens, FL", color= "cornsilk1", size= 2.5)
+
+#plots IRIntensity Choropleth map
+Choromap_IR
+```
+
+###Ultraviolet Spectrum A Light Intensity Choropleth Map
+
+```{r messages= FALSE}
+#UVAIntensity Choropleth map
+
+#group UVAIntensity measurements by Region "number" identifier
+UVAIntensityRegionAv <- aggregate(SMO$UVAIntensity, by= list(SMO$Region), FUN= mean)
+
+  #UVAIntensityRegionAv (Run for Reference)
+
+#Creating Data.Frame with AirTemp and geographic polygon values
+
+mapUVA <- SpatialPolygonsDataFrame(map, UVAIntensityRegionAv) #makes Spatial Polygons Data Frame with AirTempRegionAv as Data
+
+#ensure class is Spatial Polygons Data Frame
+  #class(mapUVA) (Run for Reference)
+
+#ensure correct averages are associated with correct Region ID
+  #mapUVA@data (Run for Reference)
+
+#Conversion from SpatialPolygonsDataFrame to DataFrame for manipulation 
+#(retaining Data from VWCRegionAv)
+mapUVA@data$id <- rownames(mapUVA@data) #same row names
+
+mapUVA@data <- join(mapUVA@data, UVAIntensityRegionAv, by="Group.1") #associate values by Group.1 (region id)
+
+mapUVA.df     <- fortify(mapUVA) #conversion to data.frame
+
+mapUVA.df     <- join(mapUVA.df, mapUVA@data)
+
+  #mapUVA.df (Run for Reference)
+
+
+#UVAIntensity Choropleth map with violet to yellow color scale
+Choromap_UVA <- mapbox +  geom_polygon(data = mapUVA.df, aes(x = long, y = lat, group = group, fill = x), 
+    alpha = 0.6) + coord_map() +
+  scale_fill_gradient(low = "violetred",
+    high = "yellow",
+    na.value = "grey50", guide = "colourbar")+
+  guides(fill=guide_colorbar(title= "Relative Intensity\n", order = -1), alpha= "none") +
+  xlab("Longitude")+ ylab("Latitude")+theme(
+    plot.subtitle = element_text(color= "black", hjust = 0.5), 
+    legend.title = element_text(color= "orangered", size = 12),
+    axis.title.x = element_text(size= 9, color = "orangered"), 
+    axis.title.y = element_text(size= 9, color = "orangered"),
+    axis.ticks.y = element_blank(), axis.ticks.x = element_blank()) +
+  geom_path(data = map.df, aes(x = long, y = lat, group = group), color = "white", lwd= 0.05) + commonplot
+
+#adds title and subtitle via annotation    
+Choromap_UVA <- Choromap_UVA + annotate("text", x = -80.257, y = 25.9267, label = "Solar UVA Light Intensity", color= "lightgoldenrod1", size= 5, fontface= "bold")+
+  annotate("text", x = -80.257, y = 25.9264, label = "Relative to Sun", color= "lightgoldenrod1", fontface = "bold", size = 3.5) +
+  annotate("text", x= -80.25465, y= 25.9215, label= "Saint Thomas University\nMiami Gardens, FL", color= "cornsilk1", size= 2.5)+
+  annotate("text", x= -80.2587, y= 25.9215, label= "UVA Wavelength Range (315-400 nm)\nRelative Intensity Range (0 - 10,000)", color="cornsilk1", size= 2.5)
+
+#plots UVAIntensity Choropleth map
+Choromap_UVA
+```
